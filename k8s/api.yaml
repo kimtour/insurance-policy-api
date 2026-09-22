@@ -50,26 +50,30 @@ spec:
                   name: insurance-api-secret
                   key: JWT_SECRET
 
-          readinessProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-
           startupProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: 8080
             periodSeconds: 5
+            timeoutSeconds: 2
             failureThreshold: 30
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
 
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 20
             periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
 
           resources:
             requests:

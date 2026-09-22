@@ -2,6 +2,8 @@ HELP.md
 target/
 .DS_Store
 data/*.mv.db
+k8s/secrets.local.yaml
+src/main/resources/application-local.properties
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

@@ -6,14 +6,3 @@ metadata:
 data:
   DB_URL: jdbc:postgresql://postgres:5432/insurance
   DB_USERNAME: insurance_user
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: insurance-api-secret
-  namespace: insurance
-type: Opaque
-stringData:
-  DB_PASSWORD: insurance_password
-  JWT_SECRET: VGhpc0lzQVN1ZmZpY2llbnRseUxvbmdEZXZlbG9wbWVudFNlY3JldEtleTEyMzQ1Ng==

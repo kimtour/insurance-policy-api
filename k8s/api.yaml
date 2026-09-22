@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insurance-api
+  namespace: insurance
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: insurance-api
+
+  template:
+    metadata:
+      labels:
+        app: insurance-api
+
+    spec:
+      containers:
+        - name: insurance-api
+          image: insurance-policy-api-insurance-api:latest
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: insurance-api-config
+                  key: DB_URL
+
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: insurance-api-config
+                  key: DB_USERNAME
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: insurance-api-secret
+                  key: DB_PASSWORD
+
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: insurance-api-secret
+                  key: JWT_SECRET
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 30
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: insurance-api
+  namespace: insurance
+
+spec:
+  selector:
+    app: insurance-api
+
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+  type: LoadBalancer

@@ -1,0 +1,51 @@
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: insurance-postgres
+
+    environment:
+      POSTGRES_DB: insurance
+      POSTGRES_USER: insurance_user
+      POSTGRES_PASSWORD: insurance_password
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - insurance_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U insurance_user -d insurance"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  insurance-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: insurance-api
+
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/insurance
+      DB_USERNAME: insurance_user
+      DB_PASSWORD: insurance_password
+      JWT_SECRET: VGhpc0lzQVN1ZmZpY2llbnRseUxvbmdEZXZlbG9wbWVudFNlY3JldEtleTEyMzQ1Ng==
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+volumes:
+  insurance_postgres_data:

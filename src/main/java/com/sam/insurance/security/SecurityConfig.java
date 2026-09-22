@@ -37,42 +37,29 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-            .csrf(csrf ->
-                    csrf.disable()
-            )
-
+            .csrf(csrf -> csrf.disable())
             .headers(headers ->
-                    headers.frameOptions(
-                            frame ->
-                                    frame.sameOrigin()
-                    )
+                    headers.frameOptions(frame -> frame.sameOrigin())
             )
-
             .sessionManagement(session ->
                     session.sessionCreationPolicy(
                             SessionCreationPolicy.STATELESS
                     )
             )
-
             .authorizeHttpRequests(auth ->
                     auth
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/hello",
-                                "/h2-console/**",
-                                "/actuator/health"
+                                "/actuator/health",
+                                "/actuator/health/**"
                         )
                         .permitAll()
-
-                        .requestMatchers(
-                                "/api/policies/**"
-                        )
+                        .requestMatchers("/api/policies/**")
                         .authenticated()
-
                         .anyRequest()
                         .authenticated()
             )
-
             .oauth2ResourceServer(oauth2 ->
                     oauth2.jwt(jwt -> {
                     })
@@ -83,7 +70,6 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
@@ -91,7 +77,6 @@ public class SecurityConfig {
     UserDetailsService userDetailsService(
             PasswordEncoder passwordEncoder
     ) {
-
         UserDetails user =
                 User.builder()
                         .username("sam")
@@ -103,26 +88,20 @@ public class SecurityConfig {
                         .roles("USER")
                         .build();
 
-        return new InMemoryUserDetailsManager(
-                user
-        );
+        return new InMemoryUserDetailsManager(user);
     }
 
     @Bean
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration
     ) throws Exception {
-
-        return configuration
-                .getAuthenticationManager();
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
     SecretKey jwtSecretKey() {
-
         byte[] decodedKey =
-                Base64.getDecoder()
-                        .decode(jwtSecret);
+                Base64.getDecoder().decode(jwtSecret);
 
         return new SecretKeySpec(
                 decodedKey,
@@ -134,12 +113,9 @@ public class SecurityConfig {
     JwtEncoder jwtEncoder(
             SecretKey secretKey
     ) {
-
         return NimbusJwtEncoder
                 .withSecretKey(secretKey)
-                .algorithm(
-                        MacAlgorithm.HS256
-                )
+                .algorithm(MacAlgorithm.HS256)
                 .build();
     }
 
@@ -147,12 +123,9 @@ public class SecurityConfig {
     JwtDecoder jwtDecoder(
             SecretKey secretKey
     ) {
-
         return NimbusJwtDecoder
                 .withSecretKey(secretKey)
-                .macAlgorithm(
-                        MacAlgorithm.HS256
-                )
+                .macAlgorithm(MacAlgorithm.HS256)
                 .build();
     }
 }

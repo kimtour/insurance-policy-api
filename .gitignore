@@ -6,6 +6,9 @@ data/*.mv.db
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Local Kubernetes secrets
+k8s/secrets.local.yaml
+
 ### STS ###
 .apt_generated
 .classpath

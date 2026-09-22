@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,9 +22,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleValidationErrors(
             MethodArgumentNotValidException exception
     ) {
-
-        Map<String, String> errors =
-                new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
 
         exception.getBindingResult()
                 .getFieldErrors()
@@ -47,22 +47,33 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleIllegalArgument(
             IllegalArgumentException exception
     ) {
-
         logger.warn(
                 "Business validation failed: {}",
                 exception.getMessage()
         );
 
-        Map<String, String> error =
-                new HashMap<>();
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "error",
+                        exception.getMessage()
+                ));
+    }
 
-        error.put(
-                "error",
-                exception.getMessage()
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, String>> handleAuthenticationException(
+            AuthenticationException exception
+    ) {
+        logger.warn(
+                "Authentication failed: {}",
+                exception.getClass().getSimpleName()
         );
 
         return ResponseEntity
-                .badRequest()
-                .body(error);
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                        "error",
+                        "Invalid username or password"
+                ));
     }
 }
